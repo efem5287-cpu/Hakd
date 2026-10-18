@@ -1,28 +1,7 @@
-# language: Python, file: main.py, target: Render / Group Moderation & Complaint Bot
+# language: Python, file: main.py, target: Render / Clean Bot
 import os
-import asyncio
-from http.server import HTTPServer, BaseHTTPRequestHandler
-import threading
 from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message, CallbackQuery
-
-print("-> Mini sunucu hazırlanıyor...", flush=True)
-
-class HealthCheckHandler(BaseHTTPRequestHandler):
-    def do_GET(self):
-        self.send_response(200)
-        self.end_headers()
-        self.wfile.write(b"Bot aktif ve calisiyor!")
-    def log_message(self, format, *args):
-        pass
-
-def run_server():
-    port = int(os.environ.get("PORT", 10000))
-    server = HTTPServer(("0.0.0.0", port), HealthCheckHandler)
-    server.serve_forever()
-
-# Web sunucusunu arka planda başlatıyoruz
-threading.Thread(target=run_server, daemon=True).start()
 
 API_ID = 35762182
 API_HASH = "126917ba7359f8cddb0780ad16e0b1ba"
@@ -102,6 +81,6 @@ async def moderation_handler(client: Client, message: Message):
             print(f"Moderasyon hatası: {e}")
 
 if __name__ == "__main__":
-    print("-> Bot Render üzerinde başlatılıyor...", flush=True)
+    print("-> Bot saf modda başlatılıyor...", flush=True)
     app.run()
     
