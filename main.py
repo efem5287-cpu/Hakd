@@ -1,18 +1,18 @@
-# language: Python, file: main.py, target: Railway / Group Moderation & Complaint Bot
+# language: Python, file: main.py, target: Render / Group Moderation & Complaint Bot
 import os
 import asyncio
-import threading
 from http.server import HTTPServer, BaseHTTPRequestHandler
+import threading
 from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message, CallbackQuery
 
-print("-> Mini sunucu başlatılıyor...", flush=True)
+print("-> Mini sunucu hazırlanıyor...", flush=True)
 
 class HealthCheckHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         self.send_response(200)
         self.end_headers()
-        self.wfile.write(b"Bot aktif!")
+        self.wfile.write(b"Bot aktif ve calisiyor!")
     def log_message(self, format, *args):
         pass
 
@@ -21,8 +21,8 @@ def run_server():
     server = HTTPServer(("0.0.0.0", port), HealthCheckHandler)
     server.serve_forever()
 
+# Web sunucusunu arka planda başlatıyoruz
 threading.Thread(target=run_server, daemon=True).start()
-print("-> Mini sunucu aktifleşti, port dinleniyor.", flush=True)
 
 API_ID = 35762182
 API_HASH = "126917ba7359f8cddb0780ad16e0b1ba"
@@ -32,15 +32,13 @@ ADMIN_USERNAME = "@Onlywmx"
 # Yasaklı kelimeler ve reklam kalıpları listesi
 BAD_WORDS = ["küfür1", "küfür2", "orospu", "amk", "aq", "piç", "sik", "mal", "discord.gg/", "t.me/", "http://", "https://"]
 
-print("-> Pyrogram in-memory istemcisi oluşturuluyor...", flush=True)
 app = Client(
-    ":memory:",
+    "my_bot",
     api_id=API_ID,
     api_hash=API_HASH,
     bot_token=BOT_TOKEN
 )
 
-# /start Komutu ve Ana Menü
 @app.on_message(filters.command("start"))
 async def start_handler(client: Client, message: Message):
     keyboard = InlineKeyboardMarkup([
@@ -54,7 +52,6 @@ async def start_handler(client: Client, message: Message):
         reply_markup=keyboard
     )
 
-# Şikayet Bilgi Butonu
 @app.on_callback_query(filters.regex("complaint_info"))
 async def complaint_info_handler(client: Client, callback_query: CallbackQuery):
     keyboard = InlineKeyboardMarkup([[InlineKeyboardButton("Geri Dön", callback_data="back_start")]])
@@ -78,7 +75,6 @@ async def back_handler(client: Client, callback_query: CallbackQuery):
     ])
     await callback_query.message.edit_text("Ana menüdesiniz. İşleminizi seçin:", reply_markup=keyboard)
 
-# Şikayet Komutu İşleyicisi
 @app.on_message(filters.command("sikayet"))
 async def complaint_handler(client: Client, message: Message):
     args = message.text.split(maxsplit=1)
@@ -86,10 +82,8 @@ async def complaint_handler(client: Client, message: Message):
         await message.reply_text("⚠️ Lütfen şikayetinizin detayını yazın.\nÖrnek: `/sikayet Mesaj içeriği...`")
         return
     
-    # Kullanıcıya tam istediğin yanıtı gönderiyoruz
     await message.reply_text(f"Postanız {ADMIN_USERNAME}'e max 2 saat içinde iletilecektir.")
 
-# Küfür ve Reklam / Link Engelleyici
 @app.on_message(filters.text & ~filters.command("start") & ~filters.command("sikayet"))
 async def moderation_handler(client: Client, message: Message):
     if not message.text:
@@ -107,12 +101,7 @@ async def moderation_handler(client: Client, message: Message):
         except Exception as e:
             print(f"Moderasyon hatası: {e}")
 
-async def main():
-    print("-> Bot Telegram'a bağlanıyor...", flush=True)
-    await app.start()
-    print("-> YENİ BOT BAŞARIYLA AKTİF EDİLDİ!", flush=True)
-    await asyncio.Event().wait()
-
 if __name__ == "__main__":
-    asyncio.run(main())
-                              
+    print("-> Bot Render üzerinde başlatılıyor...", flush=True)
+    app.run()
+    
